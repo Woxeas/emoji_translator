@@ -14,7 +14,7 @@ Future<String> translateWithChatGpt(String input, bool emojiToText) async {
   }
 
   final headers = {
-    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.contentTypeHeader: 'application/json; charset=utf-8',
     HttpHeaders.authorizationHeader: 'Bearer $openAiKey',
   };
 
@@ -23,9 +23,9 @@ Future<String> translateWithChatGpt(String input, bool emojiToText) async {
       : 'Translate this text to emoji:\n$input';
 
   final systemPrompt = 'You are a helpful and consistent emoji translator. '
-           'You translate emoji into plain, simple English. '
-           'You also translate English text into emoji only. '
-           'When translating text to emoji, reply using emoji only — no words, no explanations.';
+      'You translate emoji into plain, simple English. '
+      'You also translate English text into emoji only. '
+      'When translating text to emoji, reply using emoji only — no words, no explanations.';
 
   final body = jsonEncode({
     'model': 'gpt-4o-mini',
@@ -42,7 +42,8 @@ Future<String> translateWithChatGpt(String input, bool emojiToText) async {
         .timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      // klíčová změna pro správné zpracování emoji:
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
       final choices = data['choices'];
       if (choices != null && choices.isNotEmpty) {
         final content = choices[0]['message']['content'];

@@ -45,3 +45,4 @@ app.*.map.json
 /android/app/release
 
 .env
+chocolatey.2.4.3.nupkg
