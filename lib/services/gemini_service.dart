@@ -15,7 +15,7 @@ Future<String> translateWithGemini(String input, bool emojiToText) async {
   }
 
   final headers = {
-    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.contentTypeHeader: 'application/json; charset=utf-8',
   };
 
   final prompt = emojiToText
@@ -46,7 +46,7 @@ Future<String> translateWithGemini(String input, bool emojiToText) async {
         .timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
       final candidates = data['candidates'];
       if (candidates != null && candidates.isNotEmpty) {
         final content = candidates[0]['content']['parts'][0]['text'];

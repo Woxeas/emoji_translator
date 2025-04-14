@@ -46,3 +46,4 @@ app.*.map.json
 
 .env
 chocolatey.2.4.3.nupkg
+sentry.properties
