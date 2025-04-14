@@ -14,7 +14,7 @@ Future<String> translateWithGrok(String input, bool emojiToText) async {
   }
 
   final headers = {
-    HttpHeaders.contentTypeHeader: 'application/json',
+    HttpHeaders.contentTypeHeader: 'application/json; charset=utf-8',
     HttpHeaders.authorizationHeader: 'Bearer $grokApiKey',
   };
 
@@ -42,7 +42,7 @@ Future<String> translateWithGrok(String input, bool emojiToText) async {
         .timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 200) {
-      final data = jsonDecode(response.body);
+      final data = jsonDecode(utf8.decode(response.bodyBytes));
       final choices = data['choices'];
       if (choices != null && choices.isNotEmpty) {
         final content = choices[0]['message']['content'];
