@@ -26,8 +26,6 @@ class _HomePageState extends State<HomePage> {
 
     setState(() => _translations.clear());
 
-    incrementTranslationCount(); // record translation event
-
     final chatGpt = await translateWithChatGpt(input, _emojiToText);
     final gemini = await translateWithGemini(input, _emojiToText);
     final grok = await translateWithGrok(input, _emojiToText);
@@ -41,6 +39,10 @@ class _HomePageState extends State<HomePage> {
         'DeepSeek': deepseek,
       };
     });
+
+    if ([chatGpt, gemini, grok, deepseek].any((t) => t.trim().isNotEmpty)) {
+      await incrementTranslationCount();
+    }
   }
 
   @override

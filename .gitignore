@@ -47,3 +47,9 @@ app.*.map.json
 .env
 chocolatey.2.4.3.nupkg
 sentry.properties
+
+# CocoaPods
+ios/Pods/
+ios/Podfile.lock
+macos/Pods/
+macos/Podfile.lock
