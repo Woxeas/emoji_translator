@@ -19,6 +19,23 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _controller = TextEditingController();
   bool _emojiToText = true;
   Map<String, String> _translations = {};
+  int _totalTranslations = 0;
+  String? _mostVotedModel;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadStats();
+  }
+
+  Future<void> _loadStats() async {
+    final total = await getTranslationCount();
+    final topModel = await getMostVotedModel();
+    setState(() {
+      _totalTranslations = total;
+      _mostVotedModel = topModel;
+    });
+  }
 
   Future<void> _translate() async {
     final input = _controller.text;
@@ -42,6 +59,10 @@ class _HomePageState extends State<HomePage> {
 
     if ([chatGpt, gemini, grok, deepseek].any((t) => t.trim().isNotEmpty)) {
       await incrementTranslationCount();
+      final updatedCount = await getTranslationCount();
+      setState(() {
+        _totalTranslations = updatedCount;
+      });
     }
   }
 
@@ -52,7 +73,17 @@ class _HomePageState extends State<HomePage> {
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('🧮 Translations: $_totalTranslations'),
+                if (_mostVotedModel != null)
+                  Text('🏆 Most voted model: $_mostVotedModel'),
+              ],
+            ),
+            const SizedBox(height: 16),
             TranslationField(
               controller: _controller,
               emojiToText: _emojiToText,
@@ -65,7 +96,10 @@ class _HomePageState extends State<HomePage> {
                 children: _translations.entries.map((entry) => AiOutputCard(
                   modelName: entry.key,
                   output: entry.value,
-                  onBest: () => voteBest(entry.key),
+                  onBest: () async {
+                    await voteBest(entry.key);
+                    await _loadStats();
+                  },
                 )).toList(),
               ),
             ),
