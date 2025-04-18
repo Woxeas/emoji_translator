@@ -13,7 +13,6 @@ class EmojiTranslatorApp extends StatelessWidget {
       primarySwatch: Colors.blue,
       useMaterial3: true,
       fontFamily: 'Roboto', 
-      fontFamilyFallback: ['NotoColorEmoji'],
     ),
       home: const HomePage(),
     );
