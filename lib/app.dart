@@ -12,6 +12,7 @@ class EmojiTranslatorApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
         useMaterial3: true,
+        fontFamilyFallback: ['NotoColorEmoji'],
       ),
       home: const HomePage(),
     );
