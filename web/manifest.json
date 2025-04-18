@@ -1,11 +1,11 @@
 {
-    "name": "emoji_translator",
-    "short_name": "emoji_translator",
+    "name": "Emoji Translator",
+    "short_name": "To Emoji",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#ffffff",
+    "theme_color": "#ffffff",
+    "description": "An AI experiment by Narrativva Labs. Translate text ↔ emoji using different AI models.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [
