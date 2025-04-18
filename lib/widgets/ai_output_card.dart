@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shimmer/shimmer.dart';
 
 class AiOutputCard extends StatelessWidget {
   final String modelName;
   final String output;
   final VoidCallback onBest;
+  final bool isLoading; 
 
   const AiOutputCard({
     super.key,
     required this.modelName,
     required this.output,
     required this.onBest,
+    required this.isLoading,
   });
 
   void _copyToClipboard(BuildContext context) {
@@ -44,13 +47,28 @@ class AiOutputCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            // Output + Copy button
-            SelectableText(
-              output,
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
+            isLoading && output.trim().isEmpty
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(3, (index) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Shimmer.fromColors(
+                      baseColor: Colors.grey.shade300,
+                      highlightColor: Colors.grey.shade100,
+                      child: Container(
+                        width: double.infinity,
+                        height: 16,
+                        color: Colors.white,
+                      ),
+                    ),
+                  )),
+                )
+              : output.isEmpty
+                  ? const SizedBox(height: 20)
+                  : SelectableText(
+                      output,
+                      style: const TextStyle(fontSize: 16),
+                  ),
             Align(
               alignment: Alignment.topRight,
               child: IconButton(

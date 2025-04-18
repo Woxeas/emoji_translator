@@ -17,16 +17,11 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _controller = TextEditingController();
-  bool _emojiToText = true;
+  bool _emojiToText = false;
   Map<String, String> _translations = {};
+  bool _isTranslating = false;
   int _totalTranslations = 0;
   String? _mostVotedModel;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadStats();
-  }
 
   Future<void> _loadStats() async {
     final total = await getTranslationCount();
@@ -37,34 +32,55 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _translations = {
+      'ChatGPT': '',
+      'Gemini': '',
+      'Grok': '',
+      'DeepSeek': '',
+    };
+    _loadStats();
+  }
+
   Future<void> _translate() async {
     final input = _controller.text;
     if (input.isEmpty) return;
 
-    setState(() => _translations.clear());
-
-    final chatGpt = await translateWithChatGpt(input, _emojiToText);
-    final gemini = await translateWithGemini(input, _emojiToText);
-    final grok = await translateWithGrok(input, _emojiToText);
-    final deepseek = await translateWithDeepSeek(input, _emojiToText);
-
     setState(() {
+      _isTranslating = true;
       _translations = {
-        'ChatGPT': chatGpt,
-        'Gemini': gemini,
-        'Grok': grok,
-        'DeepSeek': deepseek,
+        'ChatGPT': '',
+        'Gemini': '',
+        'Grok': '',
+        'DeepSeek': '',
       };
     });
 
-    if ([chatGpt, gemini, grok, deepseek].any((t) => t.trim().isNotEmpty)) {
-      await incrementTranslationCount();
+  final chatGpt = await translateWithChatGpt(input, _emojiToText);
+  final gemini = await translateWithGemini(input, _emojiToText);
+  final grok = await translateWithGrok(input, _emojiToText);
+  final deepseek = await translateWithDeepSeek(input, _emojiToText);
+
+  setState(() {
+    _isTranslating = false; 
+    _translations = {
+      'ChatGPT': chatGpt,
+      'Gemini': gemini,
+      'Grok': grok,
+      'DeepSeek': deepseek,
+    };
+  });
+
+  if ([chatGpt, gemini, grok, deepseek].any((t) => t.trim().isNotEmpty)) {
+    await incrementTranslationCount();
       final updatedCount = await getTranslationCount();
       setState(() {
         _totalTranslations = updatedCount;
       });
-    }
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -96,6 +112,7 @@ class _HomePageState extends State<HomePage> {
                 children: _translations.entries.map((entry) => AiOutputCard(
                   modelName: entry.key,
                   output: entry.value,
+                  isLoading: _isTranslating,
                   onBest: () async {
                     await voteBest(entry.key);
                     await _loadStats();
