@@ -5,6 +5,7 @@ class TranslationField extends StatelessWidget {
   final bool emojiToText;
   final ValueChanged<bool> onModeToggle;
   final VoidCallback onTranslate;
+  final bool isTranslating;
 
   const TranslationField({
     super.key,
@@ -12,6 +13,7 @@ class TranslationField extends StatelessWidget {
     required this.emojiToText,
     required this.onModeToggle,
     required this.onTranslate,
+    required this.isTranslating,
   });
 
   @override
@@ -65,26 +67,36 @@ class TranslationField extends StatelessWidget {
             labelText: emojiToText ? 'Enter emoji' : 'Enter text',
             border: const OutlineInputBorder(),
           ),
+          maxLines: null,
+          keyboardType: TextInputType.multiline,
         ),
         const SizedBox(height: 12),
         Center(
           child: InkWell(
-            onTap: onTranslate,
+            onTap: isTranslating ? null : onTranslate,
             borderRadius: BorderRadius.circular(24),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               decoration: BoxDecoration(
-                color: Colors.blue.shade50,
+                color: isTranslating ? Colors.grey.shade200 : Colors.blue.shade50,
                 borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: Colors.blue.shade300),
-              ),
-              child: const Text(
-                'Translate ✨',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue,
+                border: Border.all(
+                  color: isTranslating ? Colors.grey.shade300 : Colors.blue.shade300,
                 ),
               ),
+              child: isTranslating
+                  ? const SizedBox(
+                      height: 16,
+                      width: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text(
+                      'Translate ✨',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.blue,
+                      ),
+                    ),
             ),
           ),
         ),

@@ -10,10 +10,11 @@ class EmojiTranslatorApp extends StatelessWidget {
     return MaterialApp(
       title: 'Emoji Translator',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        useMaterial3: true,
-        fontFamilyFallback: ['NotoColorEmoji'],
-      ),
+      primarySwatch: Colors.blue,
+      useMaterial3: true,
+      fontFamily: 'Roboto', 
+      fontFamilyFallback: ['NotoColorEmoji'],
+    ),
       home: const HomePage(),
     );
   }
