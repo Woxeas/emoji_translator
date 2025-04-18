@@ -1,4 +1,3 @@
-// Main screen state and logic
 import 'package:flutter/material.dart';
 import 'widgets/translation_field.dart';
 import 'widgets/ai_output_card.dart';
@@ -7,6 +6,13 @@ import 'services/gemini_service.dart';
 import 'services/grok_service.dart';
 import 'services/deepseek_service.dart';
 import 'services/supabase_service.dart';
+
+const Map<String, String> modelNamesWithType = {
+  'ChatGPT': 'gpt-4o-mini',
+  'Gemini': 'gemini-2.0-flash',
+  'Grok': 'grok-3-mini-beta',
+  'DeepSeek': 'deepseek-chat',
+};
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -18,10 +24,13 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final TextEditingController _controller = TextEditingController();
   bool _emojiToText = false;
-  Map<String, String> _translations = {};
+  Map<String, String> _translations = {
+    for (var key in modelNamesWithType.keys) key: '',
+  };
   bool _isTranslating = false;
   int _totalTranslations = 0;
   String? _mostVotedModel;
+  String? _bestModel;
 
   Future<void> _loadStats() async {
     final total = await getTranslationCount();
@@ -35,12 +44,6 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    _translations = {
-      'ChatGPT': '',
-      'Gemini': '',
-      'Grok': '',
-      'DeepSeek': '',
-    };
     _loadStats();
   }
 
@@ -50,37 +53,35 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       _isTranslating = true;
+      _bestModel = null;
       _translations = {
-        'ChatGPT': '',
-        'Gemini': '',
-        'Grok': '',
-        'DeepSeek': '',
+        for (var key in modelNamesWithType.keys) key: '',
       };
     });
 
-  final chatGpt = await translateWithChatGpt(input, _emojiToText);
-  final gemini = await translateWithGemini(input, _emojiToText);
-  final grok = await translateWithGrok(input, _emojiToText);
-  final deepseek = await translateWithDeepSeek(input, _emojiToText);
+    final chatGpt = await translateWithChatGpt(input, _emojiToText);
+    final gemini = await translateWithGemini(input, _emojiToText);
+    final grok = await translateWithGrok(input, _emojiToText);
+    final deepseek = await translateWithDeepSeek(input, _emojiToText);
 
-  setState(() {
-    _isTranslating = false; 
-    _translations = {
-      'ChatGPT': chatGpt,
-      'Gemini': gemini,
-      'Grok': grok,
-      'DeepSeek': deepseek,
-    };
-  });
+    setState(() {
+      _isTranslating = false;
+      _translations = {
+        'ChatGPT': chatGpt,
+        'Gemini': gemini,
+        'Grok': grok,
+        'DeepSeek': deepseek,
+      };
+    });
 
-  if ([chatGpt, gemini, grok, deepseek].any((t) => t.trim().isNotEmpty)) {
-    await incrementTranslationCount();
+    if ([chatGpt, gemini, grok, deepseek].any((t) => t.trim().isNotEmpty)) {
+      await incrementTranslationCount();
       final updatedCount = await getTranslationCount();
       setState(() {
         _totalTranslations = updatedCount;
       });
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +95,7 @@ class _HomePageState extends State<HomePage> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('🧮 Translations: $_totalTranslations'),
+                Text('🧮 Total translations: $_totalTranslations'),
                 if (_mostVotedModel != null)
                   Text('🏆 Most voted model: $_mostVotedModel'),
               ],
@@ -105,19 +106,32 @@ class _HomePageState extends State<HomePage> {
               emojiToText: _emojiToText,
               onModeToggle: (val) => setState(() => _emojiToText = val),
               onTranslate: _translate,
+              isTranslating: _isTranslating,
             ),
             const SizedBox(height: 24),
             Expanded(
               child: ListView(
-                children: _translations.entries.map((entry) => AiOutputCard(
-                  modelName: entry.key,
-                  output: entry.value,
-                  isLoading: _isTranslating,
-                  onBest: () async {
-                    await voteBest(entry.key);
-                    await _loadStats();
-                  },
-                )).toList(),
+                children: modelNamesWithType.entries.map((entry) {
+                  final name = entry.key;
+                  final type = entry.value;
+                  return AiOutputCard(
+                    modelName: name,
+                    modelType: type,
+                    output: _translations[name] ?? '',
+                    isLoading: _isTranslating,
+                    isBest: _bestModel == name,
+                    canVote: !_isTranslating &&
+                        (_translations[name]?.trim().isNotEmpty ?? false) &&
+                        _bestModel == null,
+                    onBest: () async {
+                      setState(() {
+                        _bestModel = name;
+                      });
+                      await voteBest(name);
+                      await _loadStats();
+                    },
+                  );
+                }).toList(),
               ),
             ),
           ],
