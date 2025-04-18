@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'widgets/translation_field.dart';
 import 'widgets/ai_output_card.dart';
+import 'widgets/app_footer.dart';
 import 'services/chatgpt_service.dart';
 import 'services/gemini_service.dart';
 import 'services/grok_service.dart';
@@ -111,27 +112,31 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 24),
             Expanded(
               child: ListView(
-                children: modelNamesWithType.entries.map((entry) {
-                  final name = entry.key;
-                  final type = entry.value;
-                  return AiOutputCard(
-                    modelName: name,
-                    modelType: type,
-                    output: _translations[name] ?? '',
-                    isLoading: _isTranslating,
-                    isBest: _bestModel == name,
-                    canVote: !_isTranslating &&
-                        (_translations[name]?.trim().isNotEmpty ?? false) &&
-                        _bestModel == null,
-                    onBest: () async {
-                      setState(() {
-                        _bestModel = name;
-                      });
-                      await voteBest(name);
-                      await _loadStats();
-                    },
-                  );
-                }).toList(),
+                children: [
+                  ...modelNamesWithType.entries.map((entry) {
+                    final name = entry.key;
+                    final type = entry.value;
+                    return AiOutputCard(
+                      modelName: name,
+                      modelType: type,
+                      output: _translations[name] ?? '',
+                      isLoading: _isTranslating,
+                      isBest: _bestModel == name,
+                      canVote: !_isTranslating &&
+                          (_translations[name]?.trim().isNotEmpty ?? false) &&
+                          _bestModel == null,
+                      onBest: () async {
+                        setState(() {
+                          _bestModel = name;
+                        });
+                        await voteBest(name);
+                        await _loadStats();
+                      },
+                    );
+                  }),
+                  const SizedBox(height: 16),
+                  const AppFooter(),
+                ],
               ),
             ),
           ],

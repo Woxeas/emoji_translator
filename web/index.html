@@ -1,36 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="emoji_translator">
-  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+  <!-- Description -->
+  <meta name="description" content="Translate emoji ↔ text using multiple AI models. Compare results from ChatGPT, Gemini, Grok, and DeepSeek.">
 
   <!-- Favicon -->
-  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="alternate icon" href="favicon.ico" type="image/x-icon">
 
-  <title>emoji_translator</title>
+  <!-- Manifest -->
   <link rel="manifest" href="manifest.json">
+
+  <!-- Apple -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="Emoji Translator">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Emoji Translator" />
+  <meta property="og:description" content="Compare emoji translations across ChatGPT, Gemini, Grok, and DeepSeek." />
+  <meta property="og:image" content="og-image.png" />
+  <meta property="og:url" content="https://labs.narrativva.com" />
+  <meta property="og:type" content="website" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Emoji Translator" />
+  <meta name="twitter:description" content="Compare emoji translations across AI models." />
+  <meta name="twitter:image" content="og-image.png" />
+
+  <title>Emoji Translator</title>
+  <link rel="canonical" href="https://emojitranslator.narrativva.com/" />
+
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Emoji Translator",
+      "url": "https://emojitranslator.narrativva.com",
+      "applicationCategory": "Utility",
+      "operatingSystem": "All",
+      "creator": {
+        "@type": "Organization",
+        "name": "Narrativva Labs",
+        "url": "https://labs.narrativva.com"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Translate emoji ↔ text using multiple AI models. Compare results from ChatGPT, Gemini, Grok, and DeepSeek.",
+      "image": "https://emojitranslator.narrativva.com/og-image.png"
+    }
+  </script>
+    
 </head>
 <body>
   <script src="flutter_bootstrap.js" async></script>
