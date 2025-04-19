@@ -18,85 +18,79 @@ class TranslationField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final from = emojiToText ? '❤️ Emoji' : '🔤 Text';
-    final to = emojiToText ? '🔤 Text' : '❤️ Emoji';
+    final theme = Theme.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: Colors.grey.shade100,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.grey.shade300),
+          child: ToggleButtons(
+            isSelected: [!emojiToText, emojiToText],
+            onPressed: (index) => onModeToggle(index == 1),
+            renderBorder: true,       
+            borderWidth: 1,
+            borderRadius: BorderRadius.circular(24),
+            borderColor: theme.colorScheme.outline,  
+            selectedBorderColor: theme.colorScheme.outline, 
+            fillColor: theme.colorScheme.primaryContainer,
+            selectedColor: theme.colorScheme.onPrimaryContainer,
+            color: theme.colorScheme.onSurfaceVariant,
+            constraints: const BoxConstraints(
+              minWidth: 140,
+              minHeight: 40,
             ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(
-                  width: 80,
-                  child: Text(
-                    from,
-                    textAlign: TextAlign.right,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ),
-                IconButton(
-                  onPressed: () => onModeToggle(!emojiToText),
-                  icon: const Icon(Icons.swap_horiz),
-                  tooltip: 'Switch translation direction',
-                ),
-                SizedBox(
-                  width: 80,
-                  child: Text(
-                    to,
-                    textAlign: TextAlign.left,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                ),
-              ],
-            ),
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.text_fields, size: 20),
+                  const SizedBox(width: 6),
+                  Text('Text → Emoji', style: theme.textTheme.bodyMedium),
+                ],
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.emoji_emotions, size: 20),
+                  const SizedBox(width: 6),
+                  Text('Emoji → Text', style: theme.textTheme.bodyMedium),
+                ],
+              ),
+            ],
           ),
         ),
-        const SizedBox(height: 12),
+
+        const SizedBox(height: 16),
+
         TextField(
           controller: controller,
           decoration: InputDecoration(
             labelText: emojiToText ? 'Enter emoji' : 'Enter text',
-            border: const OutlineInputBorder(),
           ),
           maxLines: null,
           keyboardType: TextInputType.multiline,
         ),
-        const SizedBox(height: 12),
+
+        const SizedBox(height: 16),
+
         Center(
-          child: InkWell(
-            onTap: isTranslating ? null : onTranslate,
-            borderRadius: BorderRadius.circular(24),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              decoration: BoxDecoration(
-                color: isTranslating ? Colors.grey.shade200 : Colors.blue.shade50,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                  color: isTranslating ? Colors.grey.shade300 : Colors.blue.shade300,
-                ),
+          child: SizedBox(
+            width: 160,
+            child: ElevatedButton(
+              onPressed: isTranslating ? null : onTranslate,
+              style: ElevatedButton.styleFrom(
+                minimumSize: const Size.fromHeight(56),
               ),
               child: isTranslating
                   ? const SizedBox(
-                      height: 16,
-                      width: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text(
-                      'Translate ✨',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Colors.blue,
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
                       ),
-                    ),
+                    )
+                  : Text('Translate ✨', style: theme.textTheme.labelLarge),
             ),
           ),
         ),

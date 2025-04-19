@@ -25,17 +25,27 @@ class AiOutputCard extends StatelessWidget {
   void _copyToClipboard(BuildContext context) {
     Clipboard.setData(ClipboardData(text: output));
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Copied to clipboard')),
+      SnackBar(
+        content: Text(
+          'Copied to clipboard',
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final cardColor = isBest ? Colors.yellow.shade100.withOpacity(0.5) : null;
-
+    final theme = Theme.of(context);
+    final cardBg = isBest
+        ? theme.colorScheme.secondaryContainer
+        : theme.cardTheme.color ?? theme.colorScheme.surface;
     return Card(
-      color: cardColor,
-      margin: const EdgeInsets.symmetric(vertical: 8),
+      color: cardBg,
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      shape: theme.cardTheme.shape,
+      elevation: theme.cardTheme.elevation,
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -49,14 +59,14 @@ class AiOutputCard extends StatelessWidget {
                     children: [
                       SelectableText(
                         modelName,
-                        style: Theme.of(context).textTheme.titleMedium,
+                        style: theme.textTheme.titleMedium,
                       ),
                       const SizedBox(width: 8),
                       SelectableText(
                         modelType,
-                        style: TextStyle(
-                          fontSize: 9,
-                          color: Colors.grey.shade600,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          fontSize: 12,
                         ),
                       ),
                     ],
@@ -70,14 +80,18 @@ class AiOutputCard extends StatelessWidget {
                       children: [
                         Icon(
                           isBest ? Icons.star : Icons.star_border,
-                          color: isBest ? Colors.amber : Colors.grey,
+                          color: isBest
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: 6),
                         Text(
                           isBest ? 'Voted as best' : 'Vote as best',
-                          style: TextStyle(
+                          style: theme.textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.w500,
-                            color: isBest ? Colors.amber.shade800 : Colors.grey.shade600,
+                            color: isBest
+                                ? theme.colorScheme.primary
+                                : theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -86,35 +100,41 @@ class AiOutputCard extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            isLoading && output.trim().isEmpty
-                ? Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: List.generate(
-                      3,
-                      (index) => Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: Shimmer.fromColors(
-                          baseColor: Colors.grey.shade300,
-                          highlightColor: Colors.grey.shade100,
-                          child: Container(
-                            width: double.infinity,
-                            height: 16,
-                            color: Colors.white,
-                          ),
-                        ),
+            if (isLoading && output.trim().isEmpty)
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: List.generate(3, (index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Shimmer.fromColors(
+                      baseColor:
+                          theme.colorScheme.surfaceContainerHighest,
+                      highlightColor: theme.colorScheme.surface,
+                      child: Container(
+                        width: double.infinity,
+                        height: 16,
+                        color: theme.colorScheme.surface,
                       ),
                     ),
-                  )
-                : output.isEmpty
-                    ? const SizedBox(height: 20)
-                    : SelectableText(
-                        output,
-                        style: const TextStyle(fontSize: 16),
-                      ),
+                  );
+                }),
+              )
+            else if (output.isEmpty)
+              const SizedBox(height: 20)
+            else
+              SelectableText(
+                output,
+                style: theme.textTheme.bodyLarge,
+              ),
             Align(
               alignment: Alignment.topRight,
               child: IconButton(
-                icon: const Icon(Icons.copy),
+                icon: Icon(
+                  Icons.copy,
+                  color: isBest
+                      ? theme.colorScheme.onSecondaryContainer
+                      : theme.colorScheme.primary,
+                ),
                 onPressed: () => _copyToClipboard(context),
                 tooltip: 'Copy',
               ),
