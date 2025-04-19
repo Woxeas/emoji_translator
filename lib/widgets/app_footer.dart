@@ -1,9 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/gestures.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-class AppFooter extends StatelessWidget {
+class AppFooter extends StatefulWidget {
   const AppFooter({super.key});
+
+  @override
+  State<AppFooter> createState() => _AppFooterState();
+}
+
+class _AppFooterState extends State<AppFooter> {
+  bool _hoverLabs = false;
+  bool _hoverGitHub = false;
+  bool _hoverNarrativva = false;
 
   Future<void> _open(String url) async {
     final uri = Uri.parse(url);
@@ -12,53 +21,83 @@ class AppFooter extends StatelessWidget {
     }
   }
 
-  TextSpan _linkSpan(String label, String url, BuildContext context) {
+  TextSpan _linkSpan(
+    String label,
+    String url,
+    bool isHover,
+    ValueChanged<bool> onHover,
+  ) {
+    final theme = Theme.of(context);
+    final baseColor = theme.colorScheme.primary;
+    // darken o 20 % směsí s černou
+    final hoverColor = Color.lerp(baseColor, Colors.black, 0.2)!;
+    final color = isHover ? hoverColor : baseColor;
+
     return TextSpan(
       text: label,
-      style: TextStyle(
-        color: Colors.blue,
-        decoration: TextDecoration.underline,
+      style: theme.textTheme.bodySmall?.copyWith(
+        color: color,
+        decoration: TextDecoration.none,
+        fontWeight: FontWeight.w600,
       ),
       recognizer: TapGestureRecognizer()..onTap = () => _open(url),
-      onEnter: (_) => MouseRegion(cursor: SystemMouseCursors.click),
+      mouseCursor: SystemMouseCursors.click,
+      onEnter: (_) => onHover(true),
+      onExit: (_) => onHover(false),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final baseStyle = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
+
     return Padding(
       padding: const EdgeInsets.only(top: 32, bottom: 24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _footerLine(
-            context,
-            const TextSpan(text: 'Built by '),
-            _linkSpan('Narrativva Labs', 'https://labs.narrativva.com', context),
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(children: [
+              TextSpan(text: '🔧 Built by ', style: baseStyle),
+              _linkSpan(
+                'Narrativva Labs',
+                'https://labs.narrativva.com',
+                _hoverLabs,
+                (h) => setState(() => _hoverLabs = h),
+              ),
+            ]),
           ),
           const SizedBox(height: 8),
-          _footerLine(
-            context,
-            const TextSpan(text: 'Star us on '),
-            _linkSpan('GitHub', 'https://github.com/bujnovskyf/emoji_translator', context),
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(children: [
+              TextSpan(text: '⭐️ Star us on ', style: baseStyle),
+              _linkSpan(
+                'GitHub',
+                'https://github.com/bujnovskyf/emoji_translator',
+                _hoverGitHub,
+                (h) => setState(() => _hoverGitHub = h),
+              ),
+            ]),
           ),
           const SizedBox(height: 8),
-          _footerLine(
-            context,
-            const TextSpan(text: '© 2025 '),
-            _linkSpan('Narrativva', 'https://narrativva.com', context),
+          RichText(
+            textAlign: TextAlign.center,
+            text: TextSpan(children: [
+              TextSpan(text: '© 2025 ❤️ ', style: baseStyle),
+              _linkSpan(
+                'Narrativva',
+                'https://narrativva.com',
+                _hoverNarrativva,
+                (h) => setState(() => _hoverNarrativva = h),
+              ),
+            ]),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _footerLine(BuildContext context, TextSpan prefix, TextSpan link) {
-    return RichText(
-      textAlign: TextAlign.center,
-      text: TextSpan(
-        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.grey.shade600),
-        children: [prefix, link],
       ),
     );
   }

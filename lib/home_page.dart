@@ -86,61 +86,84 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(title: const Text('Emoji Translator')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('🧮 Total translations: $_totalTranslations'),
-                if (_mostVotedModel != null)
-                  Text('🏆 Most voted model: $_mostVotedModel'),
-              ],
-            ),
-            const SizedBox(height: 16),
-            TranslationField(
-              controller: _controller,
-              emojiToText: _emojiToText,
-              onModeToggle: (val) => setState(() => _emojiToText = val),
-              onTranslate: _translate,
-              isTranslating: _isTranslating,
-            ),
-            const SizedBox(height: 24),
-            Expanded(
-              child: ListView(
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ...modelNamesWithType.entries.map((entry) {
-                    final name = entry.key;
-                    final type = entry.value;
-                    return AiOutputCard(
-                      modelName: name,
-                      modelType: type,
-                      output: _translations[name] ?? '',
-                      isLoading: _isTranslating,
-                      isBest: _bestModel == name,
-                      canVote: !_isTranslating &&
-                          (_translations[name]?.trim().isNotEmpty ?? false) &&
-                          _bestModel == null,
-                      onBest: () async {
-                        setState(() {
-                          _bestModel = name;
-                        });
-                        await voteBest(name);
-                        await _loadStats();
-                      },
-                    );
-                  }),
+                  Center(
+                    child: Text(
+                      '✨ Emoji Translator ✨',
+                      style: theme.textTheme.headlineSmall,
+                    ),
+                  ),
                   const SizedBox(height: 16),
-                  const AppFooter(),
+                  Text(
+                    '🧮 Total translations: $_totalTranslations',
+                    style: theme.textTheme.titleMedium,
+                  ),
+                  if (_mostVotedModel != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(
+                        '🏆 Most voted model: $_mostVotedModel',
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+                  TranslationField(
+                    controller: _controller,
+                    emojiToText: _emojiToText,
+                    onModeToggle: (val) => setState(() => _emojiToText = val),
+                    onTranslate: _translate,
+                    isTranslating: _isTranslating,
+                  ),
+                  const SizedBox(height: 24),
                 ],
               ),
             ),
-          ],
-        ),
+          ),
+          SliverList(
+            delegate: SliverChildBuilderDelegate(
+              (context, index) {
+                if (index < modelNamesWithType.length) {
+                  final entry = modelNamesWithType.entries.elementAt(index);
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: AiOutputCard(
+                      modelName: entry.key,
+                      modelType: entry.value,
+                      output: _translations[entry.key] ?? '',
+                      isLoading: _isTranslating,
+                      isBest: _bestModel == entry.key,
+                      canVote: !_isTranslating &&
+                              (_translations[entry.key]?.trim().isNotEmpty ?? false) &&
+                              _bestModel == null,
+                      onBest: () async {
+                        setState(() => _bestModel = entry.key);
+                        await voteBest(entry.key);
+                        await _loadStats();
+                      },
+                    ),
+                  );
+                }
+                if (index == modelNamesWithType.length) {
+                  return const Padding(
+                    padding: EdgeInsets.only(top: 16.0, bottom: 24.0),
+                    child: AppFooter(),
+                  );
+                }
+                return null;
+              },
+              childCount: modelNamesWithType.length + 1,
+            ),
+          ),
+        ],
       ),
     );
   }
