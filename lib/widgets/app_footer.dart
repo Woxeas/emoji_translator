@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class AppFooter extends StatefulWidget {
   const AppFooter({super.key});
@@ -14,6 +15,7 @@ class _AppFooterState extends State<AppFooter> {
   bool _hoverLabs = false;
   bool _hoverGitHub = false;
   bool _hoverNarrativva = false;
+  bool _isButtonPressed = false;
 
   Future<void> _open(String url) async {
     final uri = Uri.parse(url);
@@ -102,6 +104,29 @@ class _AppFooterState extends State<AppFooter> {
               ),
             ]),
           ),
+          const SizedBox(height: 16),
+          if (!_isButtonPressed)
+            TextButton(
+              onPressed: () {
+                Sentry.captureException(Exception('Testovací chyba ze Sentry tlačítka'));
+                setState(() {
+                  _isButtonPressed = true;
+                });
+              },
+              child: const Text(
+                'Send error',
+                style: TextStyle(fontSize: 12),
+              ),
+            ),
+          if (_isButtonPressed)
+            Text(
+              'Error sent',
+              style: TextStyle(
+                fontSize: 12,
+                color: Colors.green,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
         ],
       ),
     );

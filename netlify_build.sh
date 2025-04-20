@@ -27,6 +27,7 @@ flutter build web --release \
   --dart-define=OPENAI_API_KEY=$OPENAI_API_KEY \
   --dart-define=GEMINI_API_KEY=$GEMINI_API_KEY \
   --dart-define=GROK_API_KEY=$GROK_API_KEY \
-  --dart-define=DEEPSEEK_API_KEY=$DEEPSEEK_API_KEY
+  --dart-define=DEEPSEEK_API_KEY=$DEEPSEEK_API_KEY \
+  --dart-define=SENTRY_DSN=$SENTRY_DSN
 
 echo "Flutter web build completed"
