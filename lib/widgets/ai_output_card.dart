@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AiOutputCard extends StatelessWidget {
   final String modelName;
@@ -22,12 +23,13 @@ class AiOutputCard extends StatelessWidget {
     required this.canVote,
   });
 
-  void _copyToClipboard(BuildContext context) {
-    Clipboard.setData(ClipboardData(text: output));
+  void _copyToClipboard(BuildContext context, String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    final loc = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Copied to clipboard',
+          loc.copiedToClipboard,
           style: Theme.of(context).textTheme.bodyMedium,
         ),
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerLowest,
@@ -38,9 +40,10 @@ class AiOutputCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
     final cardBg = isBest
-        ? theme.colorScheme.secondaryContainer
-        : theme.cardTheme.color ?? theme.colorScheme.surface;
+      ? theme.colorScheme.secondaryContainer
+      : theme.cardTheme.color ?? theme.colorScheme.surface;
     return Card(
       color: cardBg,
       margin: const EdgeInsets.symmetric(vertical: 4),
@@ -81,17 +84,17 @@ class AiOutputCard extends StatelessWidget {
                         Icon(
                           isBest ? Icons.star : Icons.star_border,
                           color: isBest
-                              ? theme.colorScheme.primary
-                              : theme.colorScheme.onSurfaceVariant,
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.onSurfaceVariant,
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          isBest ? 'Voted as best' : 'Vote as best',
+                          isBest ? loc.votedAsBest : loc.voteAsBest,
                           style: theme.textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.w500,
                             color: isBest
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurfaceVariant,
+                              ? theme.colorScheme.primary
+                              : theme.colorScheme.onSurfaceVariant,
                           ),
                         ),
                       ],
@@ -107,8 +110,7 @@ class AiOutputCard extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     child: Shimmer.fromColors(
-                      baseColor:
-                          theme.colorScheme.surfaceContainerHighest,
+                      baseColor: theme.colorScheme.surfaceContainerHighest,
                       highlightColor: theme.colorScheme.surface,
                       child: Container(
                         width: double.infinity,
@@ -132,11 +134,11 @@ class AiOutputCard extends StatelessWidget {
                 icon: Icon(
                   Icons.copy,
                   color: isBest
-                      ? theme.colorScheme.onSecondaryContainer
-                      : theme.colorScheme.primary,
+                    ? theme.colorScheme.onSecondaryContainer
+                    : theme.colorScheme.primary,
                 ),
-                onPressed: () => _copyToClipboard(context),
-                tooltip: 'Copy',
+                onPressed: () => _copyToClipboard(context, output),
+                tooltip: loc.copyTooltip,
               ),
             ),
           ],

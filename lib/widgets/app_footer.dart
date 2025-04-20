@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AppFooter extends StatefulWidget {
   const AppFooter({super.key});
@@ -29,7 +30,6 @@ class _AppFooterState extends State<AppFooter> {
   ) {
     final theme = Theme.of(context);
     final baseColor = theme.colorScheme.primary;
-    // darken o 20 % směsí s černou
     final hoverColor = Color.lerp(baseColor, Colors.black, 0.2)!;
     final color = isHover ? hoverColor : baseColor;
 
@@ -37,8 +37,8 @@ class _AppFooterState extends State<AppFooter> {
       text: label,
       style: theme.textTheme.bodySmall?.copyWith(
         color: color,
-        decoration: TextDecoration.none,
         fontWeight: FontWeight.w600,
+        decoration: TextDecoration.none,
       ),
       recognizer: TapGestureRecognizer()..onTap = () => _open(url),
       mouseCursor: SystemMouseCursors.click,
@@ -49,10 +49,12 @@ class _AppFooterState extends State<AppFooter> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
-    final baseStyle = theme.textTheme.bodySmall?.copyWith(
-      color: theme.colorScheme.onSurfaceVariant,
-    );
+    final baseStyle = theme.textTheme.bodySmall
+        ?.copyWith(color: theme.colorScheme.onSurfaceVariant);
+
+    final year = DateTime.now().year.toString();
 
     return Padding(
       padding: const EdgeInsets.only(top: 32, bottom: 24),
@@ -62,7 +64,7 @@ class _AppFooterState extends State<AppFooter> {
           RichText(
             textAlign: TextAlign.center,
             text: TextSpan(children: [
-              TextSpan(text: '🔧 Built by ', style: baseStyle),
+              TextSpan(text: loc.builtBy(''), style: baseStyle),
               _linkSpan(
                 'Narrativva Labs',
                 'https://labs.narrativva.com',
@@ -75,7 +77,7 @@ class _AppFooterState extends State<AppFooter> {
           RichText(
             textAlign: TextAlign.center,
             text: TextSpan(children: [
-              TextSpan(text: '⭐️ Star us on ', style: baseStyle),
+              TextSpan(text: loc.starUs(''), style: baseStyle),
               _linkSpan(
                 'GitHub',
                 'https://github.com/bujnovskyf/emoji_translator',
@@ -88,9 +90,12 @@ class _AppFooterState extends State<AppFooter> {
           RichText(
             textAlign: TextAlign.center,
             text: TextSpan(children: [
-              TextSpan(text: '© 2025 ❤️ ', style: baseStyle),
+              TextSpan(
+                text: loc.copyright(year),
+                style: baseStyle,
+              ),
               _linkSpan(
-                'Narrativva',
+                ' Narrativva',
                 'https://narrativva.com',
                 _hoverNarrativva,
                 (h) => setState(() => _hoverNarrativva = h),

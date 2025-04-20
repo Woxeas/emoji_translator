@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TranslationField extends StatelessWidget {
   final TextEditingController controller;
@@ -19,6 +20,7 @@ class TranslationField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -26,26 +28,23 @@ class TranslationField extends StatelessWidget {
         Center(
           child: ToggleButtons(
             isSelected: [!emojiToText, emojiToText],
-            onPressed: (index) => onModeToggle(index == 1),
-            renderBorder: true,       
+            onPressed: (i) => onModeToggle(i == 1),
+            renderBorder: true,
             borderWidth: 1,
             borderRadius: BorderRadius.circular(24),
-            borderColor: theme.colorScheme.outline,  
-            selectedBorderColor: theme.colorScheme.outline, 
+            borderColor: theme.colorScheme.outline,
+            selectedBorderColor: theme.colorScheme.outline,
             fillColor: theme.colorScheme.primaryContainer,
             selectedColor: theme.colorScheme.onPrimaryContainer,
             color: theme.colorScheme.onSurfaceVariant,
-            constraints: const BoxConstraints(
-              minWidth: 140,
-              minHeight: 40,
-            ),
+            constraints: const BoxConstraints(minWidth: 140, minHeight: 40),
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.text_fields, size: 20),
                   const SizedBox(width: 6),
-                  Text('Text → Emoji', style: theme.textTheme.bodyMedium),
+                  Text(loc.textToEmoji, style: theme.textTheme.bodyMedium),
                 ],
               ),
               Row(
@@ -53,7 +52,7 @@ class TranslationField extends StatelessWidget {
                 children: [
                   const Icon(Icons.emoji_emotions, size: 20),
                   const SizedBox(width: 6),
-                  Text('Emoji → Text', style: theme.textTheme.bodyMedium),
+                  Text(loc.emojiToText, style: theme.textTheme.bodyMedium),
                 ],
               ),
             ],
@@ -65,7 +64,7 @@ class TranslationField extends StatelessWidget {
         TextField(
           controller: controller,
           decoration: InputDecoration(
-            labelText: emojiToText ? 'Enter emoji' : 'Enter text',
+            labelText: emojiToText ? loc.enterEmoji : loc.enterText,
           ),
           maxLines: null,
           keyboardType: TextInputType.multiline,
@@ -83,14 +82,10 @@ class TranslationField extends StatelessWidget {
               ),
               child: isTranslating
                   ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
+                      width: 20, height: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                     )
-                  : Text('Translate ✨', style: theme.textTheme.labelLarge),
+                  : Text(loc.translate, style: theme.textTheme.labelLarge),
             ),
           ),
         ),

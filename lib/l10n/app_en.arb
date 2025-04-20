@@ -1,0 +1,18 @@
+ {
+   "@@locale": "en",
+   "appTitle": "✨ Emoji Translator ✨",
+   "textToEmoji": "Text → Emoji",
+   "emojiToText": "Emoji → Text",
+   "totalTranslations": "🧮 Total translations: {count}",
+   "mostVotedModel": "🏆 Most voted model: {model}",
+   "enterText": "Enter text",
+   "enterEmoji": "Enter emoji",
+   "translate": "Translate ✨",
+   "copiedToClipboard": "Copied to clipboard",
+   "copyTooltip": "Copy",
+   "builtBy": "🔧 Built by {labs}",
+   "starUs": "⭐️ Star us on {github}",
+   "voteAsBest": "Vote as best",
+   "votedAsBest": "Voted as best",
+   "copyright": "© {year} ❤️"
+ }
