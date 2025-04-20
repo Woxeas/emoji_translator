@@ -18,22 +18,37 @@ Future<String> translateWithDeepSeek(String input, bool emojiToText) async {
     HttpHeaders.authorizationHeader: 'Bearer $deepSeekApiKey',
   };
 
-  final prompt = emojiToText
-      ? 'Translate this emoji to text:\n$input'
-      : 'Translate this text to emoji:\n$input';
+  final systemPrompt = '''
+You are an expert emoji translator.
 
-  final systemPrompt = 'You are a helpful and consistent emoji translator. '
-      'You translate emoji into plain, simple English. '
-      'You also translate English text into emoji only. '
-      'When translating text to emoji, reply using emoji only — no words, no explanations.';
+When converting **text → emoji**:
+• Output only a continuous string of emoji—no letters, digits, or punctuation.
+• Be as comprehensive as possible: use as many emoji as needed to convey all nuances and details of the original text.
+• Example:
+  • Input: "I’m so excited for the concert tonight!"
+  • Output: "🙋🤩🎫🎶🌙"
+
+When converting **emoji → text**:
+• Output fluent, plain English. You may use multiple sentences to convey everything implied.
+• Example:
+  • Input: "🍕🏠"
+  • Output: "I’m ordering pizza to enjoy at home."
+
+Always reply with exactly one translation and nothing else.
+''';
+
+  final userPrompt = emojiToText
+      ? 'Convert the following emojis into English:\n$input'
+      : 'Convert the following text into a continuous sequence of emoji:\n$input';
 
   final body = jsonEncode({
     'model': 'deepseek-chat',
     'messages': [
       {'role': 'system', 'content': systemPrompt},
-      {'role': 'user', 'content': prompt},
+      {'role': 'user',   'content': userPrompt},
     ],
-    'temperature': 0.8,
+    'temperature': emojiToText ? 0.5 : 1.2,
+    'top_p': 1.0,
   });
 
   try {
@@ -42,12 +57,12 @@ Future<String> translateWithDeepSeek(String input, bool emojiToText) async {
         .timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 200) {
-      // 👇 Dekódujeme přes bodyBytes pro správné zpracování UTF-8 (emoji!)
       final data = jsonDecode(utf8.decode(response.bodyBytes));
-      final choices = data['choices'];
+      final choices = data['choices'] as List<dynamic>?;
       if (choices != null && choices.isNotEmpty) {
-        final content = choices[0]['message']['content'];
-        return content?.trim() ?? 'No response';
+        var content = choices[0]['message']['content'] as String? ?? '';
+        content = content.replaceAll('&#x27;', "'").trim();
+        return content;
       } else {
         print('[DeepSeek] Empty choices array');
         return 'No output';
