@@ -9,6 +9,7 @@ import 'services/gemini_service.dart';
 import 'services/grok_service.dart';
 import 'services/deepseek_service.dart';
 import 'services/supabase_service.dart';
+import 'utils/validation.dart'; 
 
 const Map<String, String> modelNamesWithType = {
   'ChatGPT': 'gpt-4o-mini',
@@ -53,8 +54,26 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> _translate() async {
-    final input = _controller.text;
+    final input = _controller.text.trim();
     if (input.isEmpty) return;
+
+    if (_emojiToText) {
+      if (!isEmojiOnly(input)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorOnlyEmoji)),
+        );
+        return;
+      }
+    } else {
+      if (!isTextOnly(input)) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorOnlyText)),
+        );
+        return;
+      }
+    }
+
+    final langCode = Localizations.localeOf(context).languageCode;
 
     setState(() {
       _isTranslating = true;
@@ -64,22 +83,29 @@ class _HomePageState extends State<HomePage> {
       };
     });
 
-    final chatGpt = await translateWithChatGpt(input, _emojiToText);
-    final gemini = await translateWithGemini(input, _emojiToText);
-    final grok = await translateWithGrok(input, _emojiToText);
-    final deepseek = await translateWithDeepSeek(input, _emojiToText);
+    final results = await Future.wait([
+      translateWithChatGpt(input, _emojiToText, langCode),
+      translateWithGemini(input, _emojiToText, langCode),
+      translateWithGrok(input, _emojiToText, langCode),
+      translateWithDeepSeek(input, _emojiToText, langCode),
+    ]);
+
+    final chatGpt  = results[0];
+    final gemini   = results[1];
+    final grok     = results[2];
+    final deepseek = results[3];
 
     setState(() {
       _isTranslating = false;
       _translations = {
-        'ChatGPT': chatGpt,
-        'Gemini': gemini,
-        'Grok': grok,
+        'ChatGPT':  chatGpt,
+        'Gemini':   gemini,
+        'Grok':     grok,
         'DeepSeek': deepseek,
       };
     });
 
-    if ([chatGpt, gemini, grok, deepseek].any((t) => t.trim().isNotEmpty)) {
+    if ([_translations.values].any((list) => list.any((t) => t.trim().isNotEmpty))) {
       await incrementTranslationCount();
       final updatedCount = await getTranslationCount();
       setState(() {

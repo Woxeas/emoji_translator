@@ -5,7 +5,11 @@ import 'dart:async';
 
 const geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
 
-Future<String> translateWithGemini(String input, bool emojiToText) async {
+Future<String> translateWithGemini(
+  String input,
+  bool emojiToText,
+  String langCode,
+) async {
   final url = Uri.parse(
     "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$geminiApiKey"
   );
@@ -19,7 +23,28 @@ Future<String> translateWithGemini(String input, bool emojiToText) async {
     HttpHeaders.contentTypeHeader: 'application/json; charset=utf-8',
   };
 
-  final systemPrompt = '''
+  final isCs = langCode == 'cs';
+
+  final systemPrompt = isCs
+    ? '''
+Jsi odborník na překlad emoji.
+
+Při konverzi **text → emoji**:
+• Vypiš pouze souvislou řadu emoji — žádná písmena, číslice ani interpunkci.
+• Buď co nejvíce výstižný a použij všechna emoji potřebná k zachycení významu.
+• Příklad:
+  • Vstup: "Mám radost z koncertu dnes večer!"
+  • Výstup: "🙋🤩🎫🎶🌙"
+
+Při konverzi **emoji → text**:
+• Výsledkem bude plynulá, běžná čeština. Můžeš použít více vět.
+• Příklad:
+  • Vstup: "🍕🏠"
+  • Výstup: "Objednávám pizzu a budu si ji užívat doma."
+
+Vždy odpověz **pouze** jedním překladem a **nic** jiného.
+'''
+    : '''
 You are an expert emoji translator.
 
 When converting **text → emoji**:
@@ -39,8 +64,12 @@ Always reply with exactly one translation and nothing else.
 ''';
 
   final userPrompt = emojiToText
-      ? 'Convert the following emojis into English:\n$input'
-      : 'Convert the following text into a continuous sequence of emoji:\n$input';
+    ? (isCs
+        ? 'Přelož následující emoji do češtiny:\n$input'
+        : 'Convert the following emojis into English:\n$input')
+    : (isCs
+        ? 'Přelož následující text do souvislé posloupnosti emoji:\n$input'
+        : 'Convert the following text into a continuous sequence of emoji:\n$input');
 
   final body = jsonEncode({
     'contents': [
@@ -66,8 +95,7 @@ Always reply with exactly one translation and nothing else.
       final candidates = data['candidates'] as List<dynamic>?;
       if (candidates != null && candidates.isNotEmpty) {
         var content = candidates[0]['content']['parts'][0]['text'] as String? ?? '';
-        content = content.replaceAll('&#x27;', "'").trim();
-        return content;
+        return content.replaceAll('&#x27;', "'").trim();
       } else {
         print('[Gemini] Empty candidates array');
         return 'No output';

@@ -5,7 +5,11 @@ import 'dart:async';
 
 const deepSeekApiKey = String.fromEnvironment('DEEPSEEK_API_KEY');
 
-Future<String> translateWithDeepSeek(String input, bool emojiToText) async {
+Future<String> translateWithDeepSeek(
+  String input,
+  bool emojiToText,
+  String langCode,
+) async {
   final url = Uri.parse('https://api.deepseek.com/v1/chat/completions');
 
   if (deepSeekApiKey.isEmpty) {
@@ -18,7 +22,28 @@ Future<String> translateWithDeepSeek(String input, bool emojiToText) async {
     HttpHeaders.authorizationHeader: 'Bearer $deepSeekApiKey',
   };
 
-  final systemPrompt = '''
+  final isCs = langCode == 'cs';
+
+  final systemPrompt = isCs
+    ? '''
+Jsi odborník na překlad emoji.
+
+Při konverzi **text → emoji**:
+• Vypiš pouze souvislou řadu emoji — žádná písmena, číslice ani interpunkci.
+• Buď co nejvíce výstižný a použij všechna emoji potřebná k zachycení významu.
+• Příklad:
+  • Vstup: "Mám radost z koncertu dnes večer!"
+  • Výstup: "🙋🤩🎫🎶🌙"
+
+Při konverzi **emoji → text**:
+• Výsledkem bude plynulá, běžná čeština. Můžeš použít více vět.
+• Příklad:
+  • Vstup: "🍕🏠"
+  • Výstup: "Objednávám pizzu a budu si ji užívat doma."
+
+Vždy odpověz **pouze** jedním překladem a **nic** jiného.
+'''
+    : '''
 You are an expert emoji translator.
 
 When converting **text → emoji**:
@@ -38,8 +63,12 @@ Always reply with exactly one translation and nothing else.
 ''';
 
   final userPrompt = emojiToText
-      ? 'Convert the following emojis into English:\n$input'
-      : 'Convert the following text into a continuous sequence of emoji:\n$input';
+    ? (isCs
+        ? 'Přelož následující emoji do češtiny:\n$input'
+        : 'Convert the following emojis into English:\n$input')
+    : (isCs
+        ? 'Přelož následující text do souvislé posloupnosti emoji:\n$input'
+        : 'Convert the following text into a continuous sequence of emoji:\n$input');
 
   final body = jsonEncode({
     'model': 'deepseek-chat',
@@ -61,8 +90,7 @@ Always reply with exactly one translation and nothing else.
       final choices = data['choices'] as List<dynamic>?;
       if (choices != null && choices.isNotEmpty) {
         var content = choices[0]['message']['content'] as String? ?? '';
-        content = content.replaceAll('&#x27;', "'").trim();
-        return content;
+        return content.replaceAll('&#x27;', "'").trim();
       } else {
         print('[DeepSeek] Empty choices array');
         return 'No output';

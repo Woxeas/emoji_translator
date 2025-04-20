@@ -5,20 +5,41 @@ import 'dart:async';
 
 const openAiKey = String.fromEnvironment('OPENAI_API_KEY');
 
-Future<String> translateWithChatGpt(String input, bool emojiToText) async {
+Future<String> translateWithChatGpt(
+  String input,
+  bool emojiToText,
+  String langCode,
+) async {
   final url = Uri.parse('https://api.openai.com/v1/chat/completions');
-
-  if (openAiKey.isEmpty) {
-    print('[ChatGPT] Missing API key');
-    return 'API key not configured';
-  }
+  if (openAiKey.isEmpty) return 'API key not configured';
 
   final headers = {
     HttpHeaders.contentTypeHeader: 'application/json; charset=utf-8',
     HttpHeaders.authorizationHeader: 'Bearer $openAiKey',
   };
 
-  final systemPrompt = '''
+  final isCs = langCode == 'cs';
+
+  final systemPrompt = isCs
+    ? '''
+Jsi odborník na překlad emoji.
+
+Při konverzi **text → emoji**:
+• Vypiš pouze souvislou řadu emoji—žádná písmena, číslice ani interpunkci.
+• Buď co nejvíce výstižný a použij všechna emoji potřebná k zachycení významu.
+• Příklad:
+  • Vstup: "Mám radost z koncertu dnes večer!"
+  • Výstup: "🙋🤩🎫🎶🌙"
+
+Při konverzi **emoji → text**:
+• Výsledkem bude plynulá, běžná čeština. Můžeš použít více vět.
+• Příklad:
+  • Vstup: "🍕🏠"
+  • Výstup: "Objednávám pizzu a budu si ji užívat doma."
+
+Vždy odpověz **pouze** jedním překladem a **nic** jiného.
+'''
+    : '''
 You are an expert emoji translator.
 
 When converting **text → emoji**:
@@ -38,8 +59,14 @@ Always reply with exactly one translation and nothing else.
 ''';
 
   final userPrompt = emojiToText
-      ? 'Convert the following emojis into English:\n$input'
-      : 'Convert the following text into a continuous sequence of emoji:\n$input';
+    ? (isCs 
+        ? 'Přelož následující emoji do češtiny:\n$input'
+        : 'Convert the following emojis into English:\n$input'
+      )
+    : (isCs
+        ? 'Přelož následující text do souvislé posloupnosti emoji:\n$input'
+        : 'Convert the following text into a continuous sequence of emoji:\n$input'
+      );
 
   final body = jsonEncode({
     'model': 'gpt-4o-mini',
@@ -53,20 +80,17 @@ Always reply with exactly one translation and nothing else.
 
   try {
     final response = await http
-        .post(url, headers: headers, body: body)
-        .timeout(const Duration(seconds: 15));
+      .post(url, headers: headers, body: body)
+      .timeout(const Duration(seconds: 15));
 
     if (response.statusCode == 200) {
       final data = jsonDecode(utf8.decode(response.bodyBytes));
-      final choices = data['choices'];
+      final choices = data['choices'] as List?;
       if (choices != null && choices.isNotEmpty) {
         var content = choices[0]['message']['content'] as String? ?? '';
-        content = content.replaceAll('&#x27;', "'").trim();
-        return content;
-      } else {
-        print('[ChatGPT] Empty choices array');
-        return 'No output';
+        return content.replaceAll('&#x27;', "'").trim();
       }
+      return 'No output';
     } else {
       print('[ChatGPT] Error ${response.statusCode}: ${response.body}');
       return 'Translation failed';
