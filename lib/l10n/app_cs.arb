@@ -12,7 +12,9 @@
    "copyTooltip": "Kopírovat",
    "builtBy": "🔧 Vytvořeno {labs}",
    "starUs": "⭐️ Dejte nám hvězdičku na {github}",
-   "voteAsBest": "Označit jako nejlepší",
-   "votedAsBest": "Označeno jako nejlepší",
-   "copyright": "© {year} ❤️"
+   "voteAsBest": "Top",
+   "votedAsBest": "Označeno jako top",
+   "copyright": "© {year} ❤️",
+   "errorOnlyEmoji": "V tomto režimu prosím zadávej jen emoji.",
+   "errorOnlyText": "V tomto režimu prosím zadávej jen text."
  }

@@ -14,5 +14,7 @@
    "starUs": "⭐️ Star us on {github}",
    "voteAsBest": "Vote as best",
    "votedAsBest": "Voted as best",
-   "copyright": "© {year} ❤️"
+   "copyright": "© {year} ❤️",
+   "errorOnlyEmoji": "Please enter only emoji in this mode.",
+   "errorOnlyText": "Please enter only text in this mode."
  }
