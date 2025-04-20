@@ -1,17 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'home_page.dart';
 
-class EmojiTranslatorApp extends StatelessWidget {
+class EmojiTranslatorApp extends StatefulWidget {
   const EmojiTranslatorApp({super.key});
+
+  @override
+  State<EmojiTranslatorApp> createState() => _EmojiTranslatorAppState();
+}
+
+class _EmojiTranslatorAppState extends State<EmojiTranslatorApp> {
+  Locale _locale = const Locale('en');
+
+  void _changeLocale(Locale locale) {
+    setState(() => _locale = locale);
+  }
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Emoji Translator',
+      locale: _locale,
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
       theme: ThemeData(
         useMaterial3: true,
-
         colorScheme: const ColorScheme.light(
           primary: Color(0xFFFFBB1E),
           onPrimary: Colors.white,
@@ -20,9 +40,7 @@ class EmojiTranslatorApp extends StatelessWidget {
           surface: Color(0xFFFFFBD4),
           onSurface: Color(0xFF414949),
         ),
-
         scaffoldBackgroundColor: const Color(0xFFFFFBD4),
-
         textTheme: TextTheme(
           headlineSmall: GoogleFonts.merriweather(
             color: const Color(0xFF414949),
@@ -48,7 +66,6 @@ class EmojiTranslatorApp extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFFFBB1E),
@@ -58,7 +75,6 @@ class EmojiTranslatorApp extends StatelessWidget {
             textStyle: GoogleFonts.poppins(fontWeight: FontWeight.w600),
           ),
         ),
-
         cardTheme: CardTheme(
           color: Colors.white,
           margin: const EdgeInsets.symmetric(vertical: 8),
@@ -75,7 +91,8 @@ class EmojiTranslatorApp extends StatelessWidget {
           labelStyle: GoogleFonts.poppins(color: const Color(0xFF414949)),
         ),
       ),
-      home: const HomePage(),
+      home: HomePage(onLocaleChange: _changeLocale),
+      debugShowCheckedModeBanner: false,
     );
   }
 }

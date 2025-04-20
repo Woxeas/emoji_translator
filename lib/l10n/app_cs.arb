@@ -1,0 +1,18 @@
+ {
+   "@@locale": "cs",
+   "appTitle": "✨ Emoji Translator ✨",
+   "textToEmoji": "Text → Emoji",
+   "emojiToText": "Emoji → Text",
+   "totalTranslations": "🧮 Celkový počet překladů: {count}",
+   "mostVotedModel": "🏆 Nejpreferovanější model: {model}",
+   "enterText": "Zadejte text",
+   "enterEmoji": "Zadejte emoji",
+   "translate": "Přeložit ✨",
+   "copiedToClipboard": "Zkopírováno do schránky",
+   "copyTooltip": "Kopírovat",
+   "builtBy": "🔧 Vytvořeno {labs}",
+   "starUs": "⭐️ Dejte nám hvězdičku na {github}",
+   "voteAsBest": "Označit jako nejlepší",
+   "votedAsBest": "Označeno jako nejlepší",
+   "copyright": "© {year} ❤️"
+ }

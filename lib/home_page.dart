@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'widgets/language_selector.dart';
 import 'widgets/translation_field.dart';
 import 'widgets/ai_output_card.dart';
 import 'widgets/app_footer.dart';
@@ -16,7 +18,9 @@ const Map<String, String> modelNamesWithType = {
 };
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final ValueChanged<Locale> onLocaleChange;
+
+  const HomePage({super.key, required this.onLocaleChange});
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -87,35 +91,87 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final loc = AppLocalizations.of(context)!;
+    final currentLocale = Localizations.localeOf(context);
+    final width = MediaQuery.of(context).size.width;
+    final isMobile = width < 600;
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Text(
-                      '✨ Emoji Translator ✨',
-                      style: theme.textTheme.headlineSmall,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    '🧮 Total translations: $_totalTranslations',
-                    style: theme.textTheme.titleMedium,
-                  ),
-                  if (_mostVotedModel != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 4),
-                      child: Text(
-                        '🏆 Most voted model: $_mostVotedModel',
-                        style: theme.textTheme.bodyMedium,
+              child: isMobile
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Center(
+                          child: LanguageSelector(
+                            currentLocale: currentLocale,
+                            onLocaleChange: widget.onLocaleChange,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Center(
+                          child: Text(
+                            loc.appTitle,
+                            style: theme.textTheme.headlineSmall,
+                          ),
+                        ),
+                      ],
+                    )
+                  : SizedBox(
+                      height: 64,
+                      child: Stack(
+                        children: [
+                          Align(
+                            alignment: Alignment.center,
+                            child: Text(
+                              loc.appTitle,
+                              style: theme.textTheme.headlineSmall,
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.topRight,
+                            child: LanguageSelector(
+                              currentLocale: currentLocale,
+                              onLocaleChange: widget.onLocaleChange,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  const SizedBox(height: 16),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center, 
+                children: [
+                  Opacity(
+                    opacity: 0.7,
+                    child: Text(
+                      loc.totalTranslations(_totalTranslations),
+                      style: theme.textTheme.bodyMedium, 
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  if (_mostVotedModel != null) ...[
+                    const SizedBox(height: 4),
+                    Opacity(
+                      opacity: 0.7,
+                      child: Text(
+                        loc.mostVotedModel(_mostVotedModel!),
+                        style: theme.textTheme.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                  SizedBox(
+                    height: isMobile ? 24.0 : 36.0,
+                  ),
                   TranslationField(
                     controller: _controller,
                     emojiToText: _emojiToText,
@@ -142,8 +198,9 @@ class _HomePageState extends State<HomePage> {
                       isLoading: _isTranslating,
                       isBest: _bestModel == entry.key,
                       canVote: !_isTranslating &&
-                              (_translations[entry.key]?.trim().isNotEmpty ?? false) &&
-                              _bestModel == null,
+                          (_translations[entry.key]?.trim().isNotEmpty ??
+                              false) &&
+                          _bestModel == null,
                       onBest: () async {
                         setState(() => _bestModel = entry.key);
                         await voteBest(entry.key);
